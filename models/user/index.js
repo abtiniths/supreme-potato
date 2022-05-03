@@ -19,6 +19,18 @@ module.exports = (sequelize, DataTypes) => {
               }
         }
     },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+           // is: ["^[a-z]+$",'i'], 
+           // len: [4, 20],
+            notNull: {
+                msg: 'Please enter your email'
+              }
+        }
+    },
     password: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -29,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         validate: {
            // is: ["^[a-z]+$",'i'], 
-           // len: [4, 20],
+           // len: [4, 50],
             notNull: {
                 msg: 'Please enter your Password'
               }

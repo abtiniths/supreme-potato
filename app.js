@@ -37,8 +37,8 @@ app.use('/static', express.static(path.join(__dirname, 'public')));
 
 
 //routes
-app.use('/api/v1/auth', authRouter)
-app.use('/api/v1/task', taskRouter)
+app.use('/auth', authRouter)
+app.use('/task', taskRouter)
 
 
 
