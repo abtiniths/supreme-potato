@@ -5,6 +5,9 @@ const path = require('path');
 const express = require('express');
 const app = express();
 
+//connectDB
+const connectDB = require('./database/connection')
+const authUser = require('./middlewares/authentication')
 
 
 //routers
@@ -26,14 +29,9 @@ app.use('/static', express.static(path.join(__dirname, 'public')));
 
 
 
-
-//connectDB
-const connectDB = require('./database/connection')
-
-
 //routes
 app.use('/auth', authRouter)
-app.use('/task', taskRouter)
+app.use('/task',authUser, taskRouter)
 
 
 

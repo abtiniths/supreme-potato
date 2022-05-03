@@ -25,6 +25,11 @@ const UserSchema = new mongoose.Schema({
         minlenght: 4,
         maxlength: 100,
     },
+    role:{
+        type:String,
+        enum:['client', 'worker', 'admin'],
+        default: 'client'
+    }
 })
 
 UserSchema.pre('save', async function(){
@@ -33,9 +38,14 @@ UserSchema.pre('save', async function(){
 })
 
 UserSchema.methods.createJWT = function () {
-    return jwt.sign({ userId: this._id, name: this.name }, 'jwtSecret',{
-        expiresIn:'10d',
+    return jwt.sign({ userId: this._id, name: this.name }, process.env.JWT_SECRET,{
+        expiresIn: process.env.JWT_LIFETIME,
     })
+}
+
+UserSchema.methods.comparePassword = async function (canditatePassword) {
+const isMatch = await bcrypt.compare(canditatePassword, this.password)
+return isMatch
 }
 
 
