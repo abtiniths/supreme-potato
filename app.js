@@ -1,5 +1,5 @@
 const path = require('path');
-
+const { Users, Tasks } = require("./models");
 
 // express engine/confg
 const express = require('express');
@@ -7,12 +7,20 @@ const app = express();
 
 
 
+//routers
+const authRouter = require('./routes/auth')
+const taskRouter = require('./routes/task')
+
 // dotenv
 require('dotenv').config();
 let port = process.env.PORT
 let host = process.env.HOST
 
-
+// global async
+;(async () => {
+    await Users.sequelize.sync({force:true});
+    await Tasks.sequelize.sync({force: true});
+})();
 
 
 
@@ -28,7 +36,9 @@ app.use('/static', express.static(path.join(__dirname, 'public')));
 
 
 
-
+//routes
+app.use('/api/v1/auth', authRouter)
+app.use('/api/v1/task', taskRouter)
 
 
 
