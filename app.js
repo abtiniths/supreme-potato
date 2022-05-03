@@ -1,5 +1,5 @@
 const path = require('path');
-const { Users, Tasks } = require("./models");
+
 
 // express engine/confg
 const express = require('express');
@@ -13,14 +13,8 @@ const taskRouter = require('./routes/task')
 
 // dotenv
 require('dotenv').config();
-let port = process.env.PORT
+let port = process.env.PORT || 3000;
 let host = process.env.HOST
-
-// global async
-;(async () => {
-    await Users.sequelize.sync({force:true});
-    await Tasks.sequelize.sync({force: true});
-})();
 
 
 
@@ -33,7 +27,8 @@ app.use('/static', express.static(path.join(__dirname, 'public')));
 
 
 
-
+//connectDB
+const connectDB = require('./database/connection')
 
 
 //routes
@@ -45,6 +40,15 @@ app.use('/task', taskRouter)
 
 
 
-app.listen(port, host, () => {
-    console.log(`Server is listening ${host}:${port}`)
-});
+const start = async () => {
+  try {
+    await connectDB(process.env.MONGO_URI);
+    app.listen(port, () =>
+      console.log(`Server is listening on ${host}:${port}...`)
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+start();
