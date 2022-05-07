@@ -14,7 +14,20 @@ const TaskSchema = new mongoose.Schema({
         type:mongoose.Types.ObjectId,
         ref:'User',
         required:[true]
-    }
+    },
+   client: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required:[true]
+   },
+   body: String,
+   messages: [{
+   text: String,
+   user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+   }  
+   }]
 },{timestamps:true})
 
 module.exports = mongoose.model('Task',TaskSchema)

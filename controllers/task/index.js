@@ -1,33 +1,90 @@
 const Task = require('../../models/Task')
+const User = require('../../models/User')
 const {StatusCodes} = require('http-status-codes')
-const {BadRequestError, NotFoundError} = require('../../errors')
+const {NotFoundError} = require('../../errors')
 
 
 
+/*
+const createTask = async (req, res) => {
+    req.body.createdBy = req.user.userId
+    const client = req.body.client
+    const task = await Task.create(req.body)
 
-const getAllTasks = async (req, res) => {
+    const user = await User.findOne({ userId: client.userId });
+    user.populated('Task'); // null
+    
+    // Call the `populate()` method on a document to populate a path.
+    await user.populate('Task');
+    
+    user.populated('stoTask'); // Array of ObjectIds
+    user.Task[0].name; // 'Casino Royale'
+
+}
+
+*/
+
+// function for worker/admin to create a new task that is asigned to a client
+   const createTask = async (req, res) => {
+    req.body.createdBy = req.user.userId
+    const client = req.body.client
+    const task = await Task.create(req.body)
+    User
+   .findOne({ userId: client.userId})
+   .populate({
+      path: "User.task", 
+      populate: {
+         path: "User.message" // in Task, populate message
+      },
+      populate: {
+        path: "User",
+        model:"User" ,// in Task, populate message
+        select:"email name"
+     }
+
+   })
+    res.status(StatusCodes.CREATED).json({ task })
+}
+
+
+
+// find out how to merge theese two togheter 
+
+// function to get all the logged in users tasks
+const getAllWorkerTasks = async (req, res) => {
     const tasks = await Task.find({createdBy:req.user.userId}).sort('createdAt')
     res.status(StatusCodes.OK).json({ tasks })
 }
+const getAllClientTasks = async (req, res) => {
+    const tasks = await Task.find({client:req.user.userId}).sort('createdAt')
+    res.status(StatusCodes.OK).json({ tasks })
+}
 
+
+//function to get the logged in a single user task
 const getTask = async (req, res) => {
-    const {user:{userId}, params:{id:taskId}} = req
+   // const {user:{userId}, params:{id:taskId}} = req
+    const { params:{id:userId}} = req
     const task = await Task.findOne({
-        _id:taskId,createdBy:userId
+        $or:[{
+            createdBy: userId},
+            {client:userId}]
     })
     if(!task){
         throw new NotFoundError(`no task with id ${taskId}`)
     }
     res.status(StatusCodes.OK).json({ task })
 }
-
+/*
 const createTask = async (req, res) => {
     req.body.createdBy = req.user.userId
     const task = await Task.create(req.body)
     res.status(StatusCodes.CREATED).json({ task })
 
 }
+*/
 
+// function for admin (and worker?) to update a task
 const updateTask = async (req, res) => {
     const {body:{titel,done},user:{userId}, params:{id:taskId}} = req
 
@@ -38,6 +95,7 @@ const updateTask = async (req, res) => {
     res.status(StatusCodes.OK).json({ task })
 }
 
+// function for admin to delete a task
 const deleteTask = async (req, res) => {
     const {user:{userId}, params:{id:taskId}} = req
     const task = await Task.findByIdAndRemove({
@@ -57,9 +115,10 @@ const deleteTask = async (req, res) => {
 
 
 module.exports = {
-    getAllTasks,
+    getAllWorkerTasks,
     getTask,
     updateTask,
     deleteTask,
-    createTask
+    createTask,
+    getAllClientTasks
 }
