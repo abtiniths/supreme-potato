@@ -1,7 +1,7 @@
 const User = require("../../models/User");
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, UnauthenticatedError } = require("../../errors");
-const USER_ROLES = require('../../database/USER_ROLES')
+
 
 
 
@@ -62,7 +62,7 @@ const { email, password } = req.body;
 //stupid logout for test
 const simpleLogout = async (req, res) => {
     res.cookie('jwt', '', {maxAge:1})
-    res.status(StatusCodes.OK).json({ });
+    res.status(StatusCodes.OK).json({  });
 }
 
 

@@ -29,13 +29,10 @@ const createTask = async (req, res) => {
     req.body.createdBy = req.user.userId
     const client = req.body.client
     const task = await Task.create(req.body)
-    User
-   .findOne({ userId: client.userId})
-   .populate({
-      path: "User.task", 
-      populate: {
-         path: "User.message" // in Task, populate message
-      },
+    const user = await User.findOne({ userId: client.userId})
+   user.populate({
+      path: "Task", 
+      mod:"Task",
       populate: {
         path: "User",
         model:"User" ,// in Task, populate message
@@ -53,18 +50,18 @@ const createTask = async (req, res) => {
 // function to get all the logged in users tasks
 const getAllWorkerTasks = async (req, res) => {
     const tasks = await Task.find({createdBy:req.user.userId}).sort('createdAt')
-    res.status(StatusCodes.OK).json({ tasks })
+    res.status(StatusCodes.OK).json({ count: tasks.length, tasks })
 }
 const getAllClientTasks = async (req, res) => {
     const tasks = await Task.find({client:req.user.userId}).sort('createdAt')
-    res.status(StatusCodes.OK).json({ tasks })
+    res.status(StatusCodes.OK).json({ count: tasks.length, tasks })
 }
 
 
 //function to get the logged in a single user task
 const getTask = async (req, res) => {
-   // const {user:{userId}, params:{id:taskId}} = req
-    const { params:{id:userId}} = req
+    const {user:{userId}, params:{id:taskId}} = req
+   // const { params:{id:taskId}} = req
     const task = await Task.findOne({
         $or:[{
             createdBy: userId},
@@ -105,7 +102,7 @@ const deleteTask = async (req, res) => {
     if(!task){
         throw new NotFoundError(`no task with id ${taskId}`)
     }
-    res.status(StatusCodes.OK).send()
+    res.status(StatusCodes.OK).send(`task assigned to workerId: ${userId} with taskId: ${taskId} deleted from database`)
 }
 
 

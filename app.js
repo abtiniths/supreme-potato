@@ -8,11 +8,14 @@ const app = express();
 // error handler midddleware
 const notFoundMiddleware = require('./middlewares/not-found');
 const errorHandlerMiddleware = require('./middlewares/error-handler');
-const adminAuth = require('./middlewares/adminAuth')
+
+//auth middlewares
+const {adminAuth} = require('./middlewares/rolesAuth')
+const authUser = require('./middlewares/authentication')
 
 //connectDB
 const connectDB = require('./database/connection')
-const authUser = require('./middlewares/authentication')
+
 
 
 //routers
@@ -26,7 +29,7 @@ let port = process.env.PORT || 3000;
 let host = process.env.HOST
 
 
-// expres middleware && static files
+// express middleware && static files
 app.use( express.json() );
 app.use( express.urlencoded({ extended: true}))
 app.use('/static', express.static(path.join(__dirname, 'public')));
@@ -61,6 +64,9 @@ mongoose.connection.on('disconnected', () => {
 })
 */
 
+app.get('*', function(req, res){
+  res.send('what???', 404);
+});
 const start = async () => {
   try {
     await connectDB(process.env.MONGO_URI);

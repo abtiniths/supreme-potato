@@ -4,7 +4,7 @@ const { UnauthenticatedError } = require('../errors')
 
 
 // function to check and verify user jwt token and catch errors
-const auth = async (req, res, next) => {
+const authUser = async (req, res, next) => {
 
   // check header
   const authHeader = req.headers.authorization || req.headers.Authorization
@@ -27,4 +27,4 @@ const auth = async (req, res, next) => {
   }
 }
 
-module.exports = auth
+module.exports = authUser
