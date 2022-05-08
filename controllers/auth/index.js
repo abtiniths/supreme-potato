@@ -1,6 +1,7 @@
 const User = require("../../models/User");
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, UnauthenticatedError } = require("../../errors");
+const USER_ROLES = require('../../database/USER_ROLES')
 
 
 
@@ -8,11 +9,11 @@ const { BadRequestError, UnauthenticatedError } = require("../../errors");
 const register = async (req, res) => {
     const { name, email, password } = req.body;
 
-    // { name,email,pwd} is required so eather leave this or change error later
+// { name,email,pwd} is required so eather leave this or change error later
     if(!name || !email || !password){
         throw new BadRequestError('please provide name, email and password')
         }
-    // unique is not a 'real' validation or whatever so lookin for new option   
+// unique is not a 'real' validation or whatever so lookin for new option   
     const duplicate = await User.findOne({ email }).exec()
     if(duplicate){
         throw new BadRequestError('That Email adress is already registered')
@@ -21,9 +22,9 @@ const register = async (req, res) => {
 // create this user in db with all the data from req.body and .sign jwt token to it
   const user = await User.create({ ...req.body });
   const token = user.createJWT();
-  //res.status(StatusCodes.CREATED).json({ 'Success': `New user ${email} created!` });
+//res.status(StatusCodes.CREATED).json({ 'Success': `New user ${email} created!` });
 
-  // send status code & json object
+// send status code & json object
   res.status(StatusCodes.CREATED).json({ user, token });
 };
 
@@ -45,11 +46,11 @@ const { email, password } = req.body;
   if (!matched) {
     throw new UnauthenticatedError("Invalid Credentials");
   }
-  //asign token and put that token inside a cookie
+//asign token and put that token inside a cookie
   const token = user.createJWT();
   res.cookie('jwt', token, { httpOnly: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
     //  res.status(StatusCodes.OK).json({ user: { name: user.name, role: user.role }, token });
-  //testing putin token inside cookie
+   //testing putin token inside cookie
   //res.cookie('jwt', token, { httpOnly: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
  // res.cookie('jwt', token, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
 

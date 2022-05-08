@@ -21,6 +21,7 @@ const TaskSchema = new mongoose.Schema({
       required:[true]
    },
    body: String,
+   // find out the best way to handle msgs between worker-client, embed or reff=? will this application ever need somthing like a hybrid pattern to handle data ex. Outlier Pattern?
    messages: [{
    text: String,
    user: {

@@ -2,8 +2,12 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { isEmail } = require('validator')
+const { roles } = require('../utils/constants')
 
 // need to decide about Schema design soon... embed or ref??
+
+// testing diffrent ways to implement user roles
+
 
 const UserSchema = new mongoose.Schema({
     
@@ -26,17 +30,27 @@ const UserSchema = new mongoose.Schema({
         minlenght: 4,
         maxlength: 100,
     },
-    role: {
-        type: String,
-        default: 'client',
-        enum: ['client', 'worker', 'admin'],
-      },
+    role:{
+        type:String,
+        enum:[roles.admin, roles.worker, roles.client],
+        default: roles.client
+    },
+ //testing out two way reference between task and user to create a "many to many" relationship 
+ //find out best practice to store nosql data, scaleability? how to minimize filesize by writing the correct Schema structure from the getgo
+ //what is the pros & cons with storin task and user with a two way referencing compared to one way?
+    Task: [{
+        type:mongoose.Types.ObjectId,
+        ref:'Task',
+    }],
 });
 
 // before user auth use bcrypt to hash pwd
 UserSchema.pre('save', async function(next){
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password,salt)
+    if (this.email === process.env.ADMIN_EMAIL.toLocaleLowerCase()){
+        this.role = roles.admin
+    }
     next();
 })
 // create/asign jwt token to the user
@@ -51,7 +65,7 @@ const isMatch = await bcrypt.compare(checkPassword, this.password)
 return isMatch
 };
 
-// virtual testing
+// virtual testing, is virtual just data you can access without it gettin stored into the db, or is it more complex? leave this for now, to be able to test later
 UserSchema.virtual("clientEmail").get(function () {
     return `${this.client} <${this.email}>`
 });
