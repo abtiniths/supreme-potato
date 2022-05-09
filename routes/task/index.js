@@ -1,19 +1,18 @@
 const express = require('express')
 const router = express.Router()
-const authorize = require('../../middlewares/authorize')
-const auth = require('../../middlewares/authentication')
 const {adminAuth,workerAuth, clientAuth} = require('../../middlewares/rolesAuth')
 
 const {
-
 getAllWorkerTasks,
 getAllClientTasks,
 getTask,
 createTask,
-updateTask,
-deleteTask
-
 } = require('../../controllers/task')
+
+const {
+   updateTask,
+   deleteTask,
+   } = require('../../controllers/admin')
 
 
 // get & post route for createTask, getAll, workerTasks
