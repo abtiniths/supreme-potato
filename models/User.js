@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { isEmail } = require('validator')
 const { roles } = require('../utils/constants')
+const { BadRequestError, UnauthenticatedError } = require("../errors");
 
 // need to decide about Schema design soon... embed or ref??
 
@@ -46,6 +47,9 @@ const UserSchema = new mongoose.Schema({
 
 // before user auth use bcrypt to hash pwd
 UserSchema.pre('save', async function(next){
+
+    const user = this;
+    if(!user.isModified('password')) return next()
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password,salt)
     if (this.email === process.env.ADMIN_EMAIL.toLocaleLowerCase()){
@@ -53,23 +57,39 @@ UserSchema.pre('save', async function(next){
     }
     next();
 })
+
+UserSchema.methods.toJSON = function() {
+    const user = this;
+    const userObject = user.toObject();
+    delete userObject.password
+    return userObject
+}
+
+// check if the user data  is the same as user db 
+UserSchema.statics.findByCredentials = async function(email, password) { 
+    const user = await User.findOne({ email });
+    if(!user) throw new UnauthenticatedError('Invalid email or password');
+
+     
+    const isMatch = await bcrypt.compare(password, user.password)  
+    if (!isMatch) throw new UnauthenticatedError("Invalid email or password");  
+
+        return user
+}
+
 // create/asign jwt token to the user
 UserSchema.methods.createJWT = function () {
     return jwt.sign({ userId: this._id, name: this.name, role: this.role }, process.env.JWT_SECRET,{
         expiresIn: process.env.JWT_LIFETIME,
     });
 };
-// check if the user data pwd is the same as user db pwd
-UserSchema.methods.comparePassword = async function (checkPassword) {
-const isMatch = await bcrypt.compare(checkPassword, this.password)
-return isMatch
-};
+
 
 // virtual testing, is virtual just data you can access without it gettin stored into the db, or is it more complex? leave this for now, to be able to test later
 UserSchema.virtual("clientEmail").get(function () {
     return `${this.client} <${this.email}>`
 });
 
+const User = mongoose.model('User', UserSchema);
 
-
-module.exports = mongoose.model('User', UserSchema);
+module.exports = User

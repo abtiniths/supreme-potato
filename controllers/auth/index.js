@@ -13,7 +13,7 @@ const register = async (req, res) => {
     if(!name || !email || !password){
         throw new BadRequestError('please provide name, email and password')
         }
-// unique is not a 'real' validation or whatever so lookin for new option   
+// unique is not a 'real' validation or whatever so testing for new option   
     const duplicate = await User.findOne({ email }).exec()
     if(duplicate){
         throw new BadRequestError('That Email adress is already registered')
@@ -32,30 +32,21 @@ const register = async (req, res) => {
   
 // function to check for valid login information and asign it a jwt token & put the token inside a cookie
 const login = async (req, res) => {
-    //decide later to use mongoose static function inside model or just keep this
-const { email, password } = req.body;
-  if (!email || !password) {
-    throw new BadRequestError("Please provide email and password");
-  }
-  const user = await User.findOne({ email });
-  if (!user) {
-    throw new UnauthenticatedError("Invalid Credentials");
-  }
-// mongoose method with bcrypt to check that the hashed pwd matches the users
-  const matched = await user.comparePassword(password)
-  if (!matched) {
-    throw new UnauthenticatedError("Invalid Credentials");
-  }
-//asign token and put that token inside a cookie
-  const token = user.createJWT();
-  res.cookie('jwt', token, { httpOnly: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
+  try {
+    const {email, password} = req.body;
+    const user = await User.findByCredentials(email, password)
+    const token = user.createJWT();
+   // res.cookie('jwt', token, { httpOnly: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
     //  res.status(StatusCodes.OK).json({ user: { name: user.name, role: user.role }, token });
+    
    //testing putin token inside cookie
   //res.cookie('jwt', token, { httpOnly: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
  // res.cookie('jwt', token, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
-
   res.status(StatusCodes.OK).json({ user: { name: user.name, role: user.role }, token });
  //res.status(StatusCodes.OK).json({ roles, token });
+} catch (error){
+throw new UnauthenticatedError('Invalid email or password')
+}
 };
 
 

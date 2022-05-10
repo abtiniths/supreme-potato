@@ -1,6 +1,13 @@
 const mongoose = require('mongoose')
 
 const MessageSchema = new mongoose.Schema({
+   content: String,
+   from: Object,
+   socketid: String,
+   time: String,
+   date: String,
+   to: String,
+
 
 user: {
            type: mongoose.Schema.Types.ObjectId,
@@ -13,4 +20,6 @@ user: {
         body: String
 },{timestamps:true})
 
-module.exports = mongoose.model('Message',MessageSchema)
+Message = mongoose.model('Message',MessageSchema)
+
+module.exports = Message

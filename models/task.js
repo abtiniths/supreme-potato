@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const TaskSchema = new mongoose.Schema({
-    titel:{
+    title:{
         type:String,
         default: 'Task',
         maxlength: 25
@@ -20,15 +20,18 @@ const TaskSchema = new mongoose.Schema({
       ref: "User",
       required:[true]
    },
-   body: String,
-   // find out the best way to handle msgs between worker-client, embed or reff=? will this application ever need somthing like a hybrid pattern to handle data ex. Outlier Pattern?
-   messages: [{
    text: String,
+   picture: String,
+   // find out the best way to handle msgs between worker-client, embed or reff=? will this application ever need somthing like a hybrid pattern to handle data ex. Outlier Pattern?
+   messages: {
+   type: Object,
+   default: {}
+   },
    user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"
    }  
-   }]
-},{timestamps:true})
+   
+},{timestamps:true}, {minimize: false})
 
 module.exports = mongoose.model('Task',TaskSchema)

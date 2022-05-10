@@ -9,10 +9,7 @@ getTask,
 createTask,
 } = require('../../controllers/task')
 
-const {
-   updateTask,
-   deleteTask,
-   } = require('../../controllers/admin')
+
 
 
 // get & post route for createTask, getAll, workerTasks
@@ -24,8 +21,8 @@ router.route('/')
 // get, delete & patch route for getTask, deleteTask, update
 router.route('/:id')
    .get( workerAuth, getTask)
-   .delete(adminAuth, deleteTask)
-   .patch(adminAuth, updateTask)
+  // .delete(adminAuth, deleteTask)
+  // .patch(adminAuth, updateTask)
 
 
 

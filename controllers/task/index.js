@@ -26,6 +26,7 @@ const createTask = async (req, res) => {
 
 // function for worker/admin to create a new task that is asigned to a client
 // CREATE TASK
+/*
    const createTask = async (req, res) => {
     req.body.createdBy = req.user.userId
     const client = req.body.client
@@ -42,6 +43,19 @@ const createTask = async (req, res) => {
 
    })
     res.status(StatusCodes.CREATED).json({ task })
+}
+*/
+
+const createTask = async (req, res) => {
+    try { 
+        req.body.createdBy = req.user.userId
+    const { titel, picture, client, text} = req.body
+    const task = await Task.create(req.body)
+    res.status(StatusCodes.CREATED).json({ task })
+} catch(error){
+// throw new NotFoundError('Something went wrong, could not create Task')
+console.log(error)
+}
 }
 
 
