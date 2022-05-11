@@ -1,6 +1,6 @@
 const Task = require("../../models/Task");
 const { StatusCodes } = require("http-status-codes");
-const { NotFoundError } = require("../../errors");
+const { NotFoundError, BadRequestError } = require("../../errors");
 const req = require("express/lib/request");
 
 /*
@@ -106,6 +106,23 @@ const getTask = async (req, res) => {
   res.status(StatusCodes.OK).json({ task });
 };
 
+const sendMsg = async (req, res) => {
+  try {
+    const {
+      msg,
+      params: { id: taskId },
+    } = req;
+
+    const task = await Task.findByIdAndUpdate(
+      { _id: taskId },
+      { $push: { Messages: { msg: msg } } },
+      { safe: true, upsert: true }
+    );
+    res.status(StatusCodes.OK).json({ task });
+  } catch (error) {
+    throw new BadRequestError("no");
+  }
+};
 const uploadSingleImg = async (req, res) => {
   const {
     params: { id: taskId },
@@ -114,7 +131,7 @@ const uploadSingleImg = async (req, res) => {
     await Task.updateOne({ taskImage: req.file.filename });
     res.status(StatusCodes.OK).json("Image upload was a success!");
   } catch (error) {
-    throw new NotFoundError("should be diffrent error fix later youj lazy f");
+    throw new BadRequestError("no");
   }
 };
 
@@ -124,4 +141,5 @@ module.exports = {
   createTask,
   ToggleTaskDoneUndone,
   uploadSingleImg,
+  sendMsg,
 };

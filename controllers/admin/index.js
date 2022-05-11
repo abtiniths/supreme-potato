@@ -4,10 +4,6 @@ const { StatusCodes } = require("http-status-codes");
 const { NotFoundError } = require("../../errors");
 const { Types } = require("mongoose");
 
-//****
-//TASKS
-//****
-// function for admin (and worker?) to update a task
 const updateTask = async (req, res) => {
   const {
     body: { titel, done },
@@ -26,24 +22,27 @@ const updateTask = async (req, res) => {
   res.status(StatusCodes.OK).json({ task });
 };
 
-// function for admin to delete a task
 const deleteTask = async (req, res) => {
-  const {
-    user: { userId },
-    params: { id: taskId },
-  } = req;
-  const task = await Task.findByIdAndRemove({
-    _id: taskId,
-    createdBy: userId,
-  });
-  if (!task) {
-    throw new NotFoundError(`no task with id ${taskId}`);
+  try {
+    const {
+      user: { userId },
+      params: { id: taskId },
+    } = req;
+    const task = await Task.findByIdAndRemove({
+      _id: taskId,
+      createdBy: userId,
+    });
+    if (!task) {
+      throw new NotFoundError(`no task with id ${taskId}`);
+    }
+    res
+      .status(StatusCodes.OK)
+      .send(
+        `task assigned to workerId: ${userId} with taskId: ${taskId} deleted from database`
+      );
+  } catch (error) {
+    throw new NotFoundError(`Could not find any task to delete`);
   }
-  res
-    .status(StatusCodes.OK)
-    .send(
-      `task assigned to workerId: ${userId} with taskId: ${taskId} deleted from database`
-    );
 };
 
 const getAllTasks = async (req, res) => {
@@ -51,9 +50,6 @@ const getAllTasks = async (req, res) => {
   res.status(StatusCodes.OK).json({ count: tasks.length, tasks });
 };
 
-//****
-//USERS
-//****
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
@@ -70,9 +66,7 @@ const updateUser = async (req, res) => {
     } = req;
     // try to prevent admin to be able to remove thyself from the admin role
     if (req.user.id === id) {
-      throw new BadRequestError(
-        "Admin cannot remove his own role as admin...but he can kinda do it manually if he has access to the db... so is this function useless?"
-      );
+      throw new BadRequestError("Admin cannot remove his own role as admin");
     }
     // Check for valid mongoose objectID
     if (!Types.ObjectId.isValid(id)) {

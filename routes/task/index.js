@@ -12,7 +12,6 @@ const storage = multer.diskStorage({
   },
 });
 
-//upload parameters for multer
 const upload = multer({
   storage: storage,
   limits: {
@@ -22,11 +21,7 @@ const upload = multer({
 
 const authUser = require("../../middlewares/authentication");
 
-const {
-  adminAuth,
-  workerAuth,
-  clientAuth,
-} = require("../../middlewares/rolesAuth");
+const { workerAuth, clientAuth } = require("../../middlewares/rolesAuth");
 
 const {
   getAllLoggedInUserTasks,
@@ -34,22 +29,21 @@ const {
   createTask,
   ToggleTaskDoneUndone,
   uploadSingleImg,
+  sendMsg,
 } = require("../../controllers/task");
 
-// get & post route for createTask, getAll, workerTasks
 router
   .route("/")
-  .post(upload.single("taskImage"), authUser, workerAuth, createTask)
+  .post(authUser, workerAuth, createTask)
   .get(authUser, clientAuth, getAllLoggedInUserTasks);
 
-// get, delete & patch route for getTask, deleteTask, update
 router
   .route("/:id")
   .get(authUser, workerAuth, getTask)
   .put(authUser, workerAuth, ToggleTaskDoneUndone);
-// .delete(adminAuth, deleteTask)
-// .patch(adminAuth, updateTask)
 
-router.route("/:id/images").post(upload.single("taskImage"), uploadSingleImg);
-
+router
+  .route("/:id/images")
+  .post(upload.single("taskImage"), authUser, uploadSingleImg);
+router.post("/:id/sendmessage", authUser, sendMsg);
 module.exports = router;

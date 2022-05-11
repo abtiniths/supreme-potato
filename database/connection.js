@@ -4,7 +4,7 @@ const connectDB = (url) => {
   return mongoose.connect(url, {});
 };
 mongoose.connection.on("connected", () => {
-  console.log("Mongo has connected succesfully");
+  console.log("🚀🚀🚀Mongo has connected succesfully🚀🚀🚀");
 });
 mongoose.connection.on("reconnected", () => {
   console.log("Mongo has reconnected");

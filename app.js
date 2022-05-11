@@ -1,7 +1,5 @@
 const path = require("path");
 const cookieParser = require("cookie-parser");
-const Task = require("./models/Task");
-const Message = require("./models/Message");
 const cors = require("cors");
 
 const express = require("express");
@@ -14,14 +12,6 @@ io = require("socket.io")(server, {
     origin: "http://localhost:3000",
     methods: ["GET", "POST"],
   },
-});
-app.get("/msg", async (req, res) => {
-  try {
-    let result = await Task.findOne({ _id: req.query.room });
-    res.send(result);
-  } catch (e) {
-    res.status(500).send({ message: e.message });
-  }
 });
 
 // error handler midddleware
@@ -65,7 +55,7 @@ const start = async () => {
   try {
     await connectDB(process.env.MONGO_URI);
     server.listen(port, () =>
-      console.log(`Server is listening on ${host}:${port}...`)
+      console.log(`🚀🚀🚀 Server is listening on  🚀🚀🚀 ${host}:${port}...✓`)
     );
   } catch (error) {
     console.log(error);
