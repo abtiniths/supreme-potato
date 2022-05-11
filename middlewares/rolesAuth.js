@@ -18,7 +18,7 @@ function workerAuth(req, res, next) {
 }
 
 function clientAuth(req, res, next) {
-  if (req.user.role === roles.client) {
+  if (req.user.role === roles.client || roles.worker) {
     next();
   } else {
     throw new UnauthenticatedError("Invalid Authentication");

@@ -22,19 +22,21 @@ const TaskSchema = new mongoose.Schema(
       required: [true],
     },
     text: String,
-    picture: String,
-    // find out the best way to handle msgs between worker-client, embed or reff=? will this application ever need somthing like a hybrid pattern to handle data ex. Outlier Pattern?
+    taskImage: String,
     messages: {
-      type: Object,
-      default: {},
-    },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: Array,
+      default: [],
     },
   },
   { timestamps: true },
   { minimize: false }
 );
+TaskSchema.virtual("taskImgPath").get(function () {
+  if (this.taskImage != null && this.taskImageType != null) {
+    return `data:${this.taskImageType};charset=utf-8;base64,
+        ${this.taskImage.toString("base64")}`;
+  }
+});
 
-module.exports = mongoose.model("Task", TaskSchema);
+const Task = mongoose.model("Task", TaskSchema);
+module.exports = Task;

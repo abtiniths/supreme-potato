@@ -1,5 +1,4 @@
 const Task = require("../../models/Task");
-const User = require("../../models/User");
 const { StatusCodes } = require("http-status-codes");
 const { NotFoundError } = require("../../errors");
 const req = require("express/lib/request");
@@ -45,41 +44,52 @@ const createTask = async (req, res) => {
 }
 */
 
-const createTask = async (req, res) => {
+const ToggleTaskDoneUndone = async (req, res) => {
   try {
-    req.body.createdBy = req.user.userId;
-    const { titel, picture, client, text } = req.body;
-    const task = await Task.create(req.body);
+    const {
+      user: { userId },
+      params: { id: taskId },
+    } = req;
+    const task = await Task.findOneAndUpdate({ createdBy: userId }, [
+      { $set: { done: { $eq: [false, "$done"] } } },
+    ]);
+    res.status(StatusCodes.OK).json({ task });
+  } catch (error) {
+    throw new NotFoundError(`could not find any task to update`);
+  }
+};
+
+const createTask = async (req, res) => {
+  req.body.createdBy = req.user.userId;
+  const { title, client, text, createdBy } = req.body;
+  try {
+    const task = await Task.create({
+      title,
+      client,
+      text,
+      createdBy,
+    });
     res.status(StatusCodes.CREATED).json({ task });
   } catch (error) {
-    // throw new NotFoundError('Something went wrong, could not create Task')
+    //throw new NotFoundError("Something went wrong, could not create Task");
     console.log(error);
   }
 };
 
-// find out how to merge theese two togheter
-// function to get all the logged in users tasks
-// GET WORKER AND CLIENT TASKS
-//req.user.rle
-const getAllWorkerTasks = async (req, res) => {
-  const tasks = await Task.find({ createdBy: req.user.userId }).sort(
-    "createdAt"
-  );
-  res.status(StatusCodes.OK).json({ count: tasks.length, tasks });
-};
-const getAllClientTasks = async (req, res) => {
-  const tasks = await Task.find({ client: req.user.userId }).sort("createdAt");
-  res.status(StatusCodes.OK).json({ count: tasks.length, tasks });
+const getAllLoggedInUserTasks = async (req, res) => {
+  if (req.user.role == "worker" || "client") {
+    const tasks = await Task.find({
+      $or: [{ createdBy: req.user.userId }, { client: req.user.userId }],
+    }).sort("createdAt");
+    res.status(StatusCodes.OK).json({ count: tasks.length, tasks });
+  }
 };
 
-// GET TASK
-//function to get the logged in a single user task
 const getTask = async (req, res) => {
   const {
     user: { userId },
     params: { id: taskId },
   } = req;
-  // const { params:{id:taskId}} = req
   const task = await Task.findOne({
     $or: [
       {
@@ -95,18 +105,23 @@ const getTask = async (req, res) => {
   }
   res.status(StatusCodes.OK).json({ task });
 };
-/*
-const createTask = async (req, res) => {
-    req.body.createdBy = req.user.userId
-    const task = await Task.create(req.body)
-    res.status(StatusCodes.CREATED).json({ task })
 
-}
-*/
+const uploadSingleImg = async (req, res) => {
+  const {
+    params: { id: taskId },
+  } = req;
+  try {
+    await Task.updateOne({ taskImage: req.file.filename });
+    res.status(StatusCodes.OK).json("Image upload was a success!");
+  } catch (error) {
+    throw new NotFoundError("should be diffrent error fix later youj lazy f");
+  }
+};
 
 module.exports = {
-  getAllWorkerTasks,
+  getAllLoggedInUserTasks,
   getTask,
   createTask,
-  getAllClientTasks,
+  ToggleTaskDoneUndone,
+  uploadSingleImg,
 };

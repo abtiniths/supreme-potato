@@ -2,22 +2,8 @@ const mongoose = require("mongoose");
 
 const MessageSchema = new mongoose.Schema(
   {
-    content: String,
-    from: Object,
-    socketid: String,
-    time: String,
-    date: String,
-    to: String,
-
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-    task: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Task",
-    },
-    body: String,
+    name: String,
+    message: String,
   },
   { timestamps: true }
 );
