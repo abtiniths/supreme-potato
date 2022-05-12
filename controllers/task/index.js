@@ -3,47 +3,6 @@ const { StatusCodes } = require("http-status-codes");
 const { NotFoundError, BadRequestError } = require("../../errors");
 const req = require("express/lib/request");
 
-/*
-const createTask = async (req, res) => {
-    req.body.createdBy = req.user.userId
-    const client = req.body.client
-    const task = await Task.create(req.body)
-
-    const user = await User.findOne({ userId: client.userId });
-    user.populated('Task'); // null
-    
-    // Call the `populate()` method on a document to populate a path.
-    await user.populate('Task');
-    
-    user.populated('stoTask'); // Array of ObjectIds
-    user.Task[0].name; // 'Casino Royale'
-
-}
-
-*/
-
-// function for worker/admin to create a new task that is asigned to a client
-// CREATE TASK
-/*
-   const createTask = async (req, res) => {
-    req.body.createdBy = req.user.userId
-    const client = req.body.client
-    const task = await Task.create(req.body)
-    const user = await User.findOne({ userId: client.userId})
-   user.populate({
-      path: "Task", 
-      model:"Task",
-      populate: {
-        path: "User",
-        model:"User" ,
-        select:"email name"
-     }
-
-   })
-    res.status(StatusCodes.CREATED).json({ task })
-}
-*/
-
 const ToggleTaskDoneUndone = async (req, res) => {
   try {
     const {
@@ -71,8 +30,7 @@ const createTask = async (req, res) => {
     });
     res.status(StatusCodes.CREATED).json({ task });
   } catch (error) {
-    //throw new NotFoundError("Something went wrong, could not create Task");
-    console.log(error);
+    throw new NotFoundError("Something went wrong, could not create Task");
   }
 };
 

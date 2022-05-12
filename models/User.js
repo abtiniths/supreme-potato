@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { isEmail } = require("validator");
 const { roles } = require("../utils/constants");
-const { BadRequestError, UnauthenticatedError } = require("../errors");
+const { UnauthenticatedError } = require("../errors");
 
 // need to decide about Schema design soon... embed or ref??
 

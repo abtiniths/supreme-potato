@@ -30,11 +30,10 @@ const login = async (req, res) => {
       sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000,
     });
-    // res.cookie('jwt', token, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
+    // secure: true
     res
       .status(StatusCodes.OK)
       .json({ user: { name: user.name, role: user.role }, token });
-    //res.status(StatusCodes.OK).json({ roles, token });
   } catch (error) {
     throw new UnauthenticatedError("Invalid email or password");
   }
